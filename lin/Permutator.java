@@ -1,18 +1,14 @@
 package lin;
 
-import java.util.Vector;
-
-public abstract class Permutator<I, O> {
-	Vector<I> sources;
-	
-	O Coutput;
+public abstract class Permutator<O> {
+	O crn;
 	
 	/**
-	 * Sets the Coutput to the first step in the permutation
+	 * Sets the crn to the first step in the permutation
 	 * 
 	 * @return the first step in permutation
 	 */
-	abstract O toStart(@SuppressWarnings ("unchecked") I... s);
+	abstract O toStart();
 	
 	/**
 	 * The logic to move from one permutation to the next
@@ -26,6 +22,8 @@ public abstract class Permutator<I, O> {
 	 * 
 	 * @return
 	 */
-	abstract O getCurrent();
+	O getCurrent() {
+		return crn;
+	}
 	
 }
