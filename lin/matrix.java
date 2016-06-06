@@ -3,7 +3,7 @@ package lin;
 public class matrix {
 	int[][] matrix;
 	
-	int n, m;
+	final int n, m;
 	
 	public matrix(int rows, int cols) {
 		n = rows;
@@ -16,6 +16,28 @@ public class matrix {
 		n = initial.length;
 		m = initial[0].length;
 	}
+    
+    	public int[] getRow(int a) {
+    		int[] row = null; 
+    		row = matrix[a];
+    		return row;
+    	}
+    	
+    	public int[] getColm(int b) {
+    		int [] colm = new int[m];
+    		for (int i=0; i<=m; i++) {
+    			colm[i] = matrix[i][b];
+    		}
+    		return colm;
+    	}
+    	
+	 public int getNumRow() {
+        	return n;
+    	}
+    	
+    	public int netNumCol() {
+        	return m;
+    	}
 	
 	public boolean isSquare() {
 		return n == m;
