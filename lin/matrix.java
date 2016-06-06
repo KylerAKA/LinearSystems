@@ -53,6 +53,24 @@ public class matrix {
 		return m;
 	}
 	
+	public void setRow(int a, int[] rr) {
+        try {
+            matrix[a] = rr;
+        }
+        catch (IndexOutOfBoundsException e) {
+            System.err.println("Matrix has " + n + " rows, attempted " + a + " on setRow()");
+        }
+    } 
+    public void setColm(int b, int[] rr) {
+        try {
+            for(int i =0; i<=m; i++) 
+                matrix[i][b] = rr[i];
+        }
+        catch (IndexOutOfBoundsException e) {
+            System.err.println("Matrix has " + m + " coluumns, attempted " + b + " on setColm()");
+        }
+    } 
+	
 	public boolean setItem(int r, int c, int a) {
 		try {
 			matrix[r][c] = a;
