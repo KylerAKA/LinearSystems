@@ -16,31 +16,43 @@ public class matrix {
 		n = initial.length;
 		m = initial[0].length;
 	}
-    
-    	public int[] getRow(int a) {
-    		int[] row = null; 
-    		row = matrix[a];
-    		return row;
-    	}
-    	
-    	public int[] getColm(int b) {
-    		int [] colm = new int[m];
-    		for (int i=0; i<=m; i++) {
-    			colm[i] = matrix[i][b];
-    		}
-    		return colm;
-    	}
-    	
-	 public int getNumRow() {
-        	return n;
-    	}
-    	
-    	public int netNumCol() {
-        	return m;
-    	}
+	
+	public int[] getRow(int a) {
+		int[] row = null;
+		try {
+			row = matrix[a];
+		}
+		catch (IndexOutOfBoundsException e) {
+			System.err.print("Matrix has " + n + " rows, attempted " + a + " on getRow()");
+			System.err.print(e);
+		}
+		return row;
+	}
+	
+	public int[] getColm(int b) {
+		int[] colm = new int[n];
+		try {
+			for (int i = 0; i <= n; i++) {
+				colm[i] = matrix[i][b];
+			}
+		}
+		catch (IndexOutOfBoundsException e) {
+			System.err.print("Matrix has " + m + " columns, attempted " + b + " on getColm()");
+			System.err.print(e);
+		}
+		return colm;
+	}
 	
 	public boolean isSquare() {
 		return n == m;
+	}
+	
+	public int getNumRow() {
+		return n;
+	}
+	
+	public int getNumColm() {
+		return m;
 	}
 	
 	public boolean setItem(int r, int c, int a) {
@@ -65,5 +77,4 @@ public class matrix {
 		
 		return m;
 	}
-	
 }
