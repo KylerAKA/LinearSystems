@@ -1,8 +1,8 @@
 
 
-public class solver {
+public class Solver {
     matrix A;
-    public solver(matrix B) {
+    public Solver(matrix B) {
         A = B;
     }
     
