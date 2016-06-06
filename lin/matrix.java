@@ -24,7 +24,6 @@ public class matrix {
 		}
 		catch (IndexOutOfBoundsException e) {
 			System.err.print("Matrix has " + n + " rows, attempted " + a + " on getRow()");
-			System.err.print(e);
 		}
 		return row;
 	}
@@ -38,7 +37,6 @@ public class matrix {
 		}
 		catch (IndexOutOfBoundsException e) {
 			System.err.print("Matrix has " + m + " columns, attempted " + b + " on getColm()");
-			System.err.print(e);
 		}
 		return colm;
 	}
