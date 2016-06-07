@@ -9,16 +9,21 @@ public class Solver {
 //		A = B;
 //	}
 	
+	public static boolean all(Matrix A,int row,int colm_num){
+		for (int j = 0; j < colm_num; j++)
+			if (A.matrix[row][j] != 0)
+				return false;
+		return true;
+	}
+	
+	
 	public static int find_pivot(Matrix A, int colm_num) {
-		for (int i = 0; i < A.getNumRow(); i++)
+		for (int i = 0; i < A.getNumRow(); i++){
 			if (A.matrix[i][colm_num] == 0)
 				continue;
-			else{
-				for (int j = 0; j < colm_num; j++)
-					if (A.matrix[i][j] != 0)
-						return -1;
-			return i;
-			}
+			if(all(A,i,colm_num))
+				return i;
+		}
 		return -1;
 	}
 	
@@ -34,7 +39,7 @@ public class Solver {
 			else {
 				for (int r = i + 1; r < A.getNumRow(); r++) {
 					for (int c = A.getNumColm()-1; c > j - 1; c--) {
-						int a = (A.matrix[i][j] * A.matrix[r][c]) - (A.matrix[r][j]* A.matrix[r][c]);
+						int a = (A.matrix[i][j] * A.matrix[r][c]) - (A.matrix[r][j]* A.matrix[i][c]);
 						A.setItem(r, c, a);
 						if (p != 0)
 							A.matrix[r][c] %= p;
@@ -65,7 +70,7 @@ public class Solver {
 				out+= i;
 			}
 			System.out.println(out);
-			if(colms[colms.length-1]==0){
+			if(colms[cols-1]==0){
 				cnt++;
 				System.out.println("eh");
 			}
