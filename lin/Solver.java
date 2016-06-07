@@ -1,7 +1,9 @@
 package lin;
 
 public class Solver {
-	public static int rows = 2, cols = 10, p = 2;
+	public static int rows_i = 2, cols_i = 2, p = 2;
+	
+	public static int rows_f = 10, cols_f = 10;
 	
 	public static int find_pivot(Matrix A, int colm_num) {
 		Rows: for (int i = 0; i < A.m; i++) {
@@ -41,28 +43,45 @@ public class Solver {
 	}
 	
 	public static void main(String... args) {
+		/* JFrame f = new JFrame();
+		 * f.setPreferredSize(new Dimension(1000, 100));
+		 * f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		 * JLabel l = new JLabel();
+		 * f.add(l);
+		 * f.pack();
+		 * f.setVisible(true); */
 		
-		MatrixPerm mp = new MatrixPerm(rows, cols, p);
-		
-		Matrix C = mp.toStart();
-		int numM = 0;
-		int numC = 0;
-		
-		do {
-			C = mp.getCurrent();
-			numM++;
-			// System.out.println(C);
-			
-			boolean[] colms = find_pivot_colms(C);
-			if (!colms[cols - 1])
-				numC++;
-			
-			// for (boolean b: colms)
-			// System.out.print(((b)? "pivot": "not") + "\t");
-			// System.out.println("\n--------------");
-			
-		} while (mp.permute());
-		
-		System.out.println(numC + "/" + numM + ": " + (float) numC / numM);
+		for (int r = rows_i; r <= rows_f; r++) {
+			for (int c = cols_i; c <= cols_f; c++) {
+				// System.out.println(r + "x" + c + " in Z" + p);
+				
+				MatrixPerm mp = new MatrixPerm(r, c, p);
+				Matrix C = mp.toStart();
+				
+				int numM = 0;
+				int numC = 0;
+				long Tot = (long) Math.pow(p, (r * c));
+				// System.out.println("Tot:" + Tot);
+				if (Tot >= Math.pow(2, 30))
+					continue;
+				
+				long start = System.currentTimeMillis();
+				do {
+					C = mp.getCurrent();
+					numM++;
+					if (!find_pivot_colms(C)[c - 1])
+						numC++;
+					
+					// l.setText(numC + "/" + numM + "/" + Tot);
+					// f.repaint();
+					
+				} while (mp.permute());
+				System.out.printf("%1$10d", numC);
+				// System.out.println(numC + "/ " + Tot + " = "
+				// + (float) numC / Tot);
+				// System.out.println(System.currentTimeMillis() - start);
+			}
+			System.out.println();
+		}
 	}
 }
