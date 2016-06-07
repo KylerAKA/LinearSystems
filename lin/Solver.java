@@ -1,12 +1,12 @@
 
 
 public class Solver {
-    matrix A;
-    public Solver(matrix B) {
+    Matrix A;
+    public Solver(Matrix B) {
         A = B;
     }
     
-    public int find_pivot(matrix A, int colm_num) {
+    public int find_pivot(Matrix A, int colm_num) {
         for (int i = 0; i < A.getNumRow(); i++)
             if (A.matrix[i][colm_num] == 0)
                 continue;
