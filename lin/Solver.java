@@ -1,10 +1,6 @@
-import lin.Matrix;
-import lin.MatrixPerm;
-
-
+package lin;
 
 public class Solver {
-<<<<<<< HEAD
 public static int rows = 2, cols = 2, p = 2;
 	
 	Matrix A;
