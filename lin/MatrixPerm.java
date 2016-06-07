@@ -20,8 +20,11 @@ public class MatrixPerm extends Permutator<Matrix> {
 	boolean permute() {
 		for (int r = 0; r < n; r++)
 			for (int c = 0; c < m; c++)
-				if (crn.matrix[r][c] < p - 1)
+				if (crn.matrix[r][c] < p - 1) {
+					// System.out.print(r + " " + c);
+					// System.out.println(": " + crn.matrix[r][c] + 1);
 					return (crn.matrix[r][c]++) < p;
+				}
 				else
 					crn.matrix[r][c] = 0;
 		return false;

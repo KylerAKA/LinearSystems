@@ -12,9 +12,11 @@ public class Matrix {
 	}
 	
 	public Matrix(int[][] initial) {
-		matrix = initial;
 		m = initial.length;
 		n = initial[0].length;
+		for (int r = 0; r < m; r++)
+			for (int c = 0; c < n; c++)
+				matrix[r][c] = initial[r][c];
 	}
 	
 	public int[] getRow(int a) {

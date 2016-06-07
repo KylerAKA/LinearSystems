@@ -1,13 +1,7 @@
 package lin;
 
 public class Solver {
-public static int rows = 2, cols = 2, p = 2;
-	
-	Matrix A;
-	
-	public Solver(Matrix B) {
-		A = B;
-	}
+	public static int rows = 2, cols = 2, p = 2;
 	
 	public static int find_pivot(Matrix A, int colm_num) {
 		for (int i = 0; i < A.getNumRow(); i++)
@@ -31,7 +25,7 @@ public static int rows = 2, cols = 2, p = 2;
 			}
 			else {
 				for (int r = i + 1; r < A.getNumRow(); r++) {
-					for (int c = A.getNumColm(); c > j - 1; c--) {
+					for (int c = A.getNumColm() - 1; c > j - 1; c--) {
 						int a = (A.matrix[i][j] * A.matrix[r][c]) - (A.matrix[r][j]
 							* A.matrix[r][c]);
 						A.setItem(r, c, a);
@@ -56,3 +50,5 @@ public static int rows = 2, cols = 2, p = 2;
 			System.out.println(find_pivot_colms(C));
 		} while (mp.permute());
 	}
+	
+}
