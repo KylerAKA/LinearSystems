@@ -8,12 +8,13 @@ public class Matrix {
 	public Matrix(int rows, int cols) {
 		m = rows;
 		n = cols;
-		matrix = new int[n][m];
+		matrix = new int[m][n];
 	}
 	
 	public Matrix(int[][] initial) {
 		m = initial.length;
 		n = initial[0].length;
+		matrix = new int[m][n];
 		for (int r = 0; r < m; r++)
 			for (int c = 0; c < n; c++)
 				matrix[r][c] = initial[r][c];
@@ -21,25 +22,14 @@ public class Matrix {
 	
 	public int[] getRow(int a) {
 		int[] row = null;
-		try {
-			row = matrix[a];
-		}
-		catch (IndexOutOfBoundsException e) {
-			System.err.print("Matrix has " + m + " rows, attempted " + a + " on getRow()");
-		}
+		row = matrix[a];
 		return row;
 	}
 	
 	public int[] getColm(int b) {
 		int[] colm = new int[n];
-		try {
-			for (int i = 0; i <= n; i++) {
-				colm[i] = matrix[i][b];
-			}
-		}
-		catch (IndexOutOfBoundsException e) {
-			System.err.print("Matrix has " + n + " columns, attempted " + b + " on getColm()");
-		}
+		for (int i = 0; i <= n; i++)
+			colm[i] = matrix[i][b];
 		return colm;
 	}
 	
@@ -55,36 +45,22 @@ public class Matrix {
 		return n;
 	}
 	
-	public boolean setItem(int r, int c, int a) {
-		try {
-			matrix[r][c] = a;
-		}
-		catch (IndexOutOfBoundsException e) {
-			return false;
-		}
-		return true;
+	public void setItem(int r, int c, int a) {
+		matrix[r][c] = a;
 	}
 	
 	public int getItem(int r, int c) {
-		try {
-			return matrix[r][c];
-		}
-		catch (IndexOutOfBoundsException e) {
-			System.err.print("Matrix is (" + m + "x" + n + "), attempted [" + r + ", " + c
-				+ "] on getItem()");
-		}
-		return -1;
+		return matrix[r][c];
 	}
 	
 	public String toString() {
-		String s = "[";
+		String s = "";
 		for (int[] r: matrix) {
 			s += "[";
 			for (int a: r)
 				s += a + "\t";
-			s += "],\n";
+			s += "]\n";
 		}
-		s += "]";
 		
 		return s;
 	}

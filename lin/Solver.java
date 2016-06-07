@@ -1,53 +1,64 @@
 package lin;
 
 public class Solver {
-	public static int rows = 2, cols = 2, p = 2;
+	public static int rows = 2, cols = 3, p = 2;
 	
 	public static int find_pivot(Matrix A, int colm_num) {
-		for (int i = 0; i < A.getNumRow(); i++)
+		for (int i = 0; i < A.m; i++)
 			if (A.matrix[i][colm_num] == 0)
 				continue;
-			else
+			else {
 				for (int j = 0; j < colm_num; j++)
-					if (A.matrix[i][j] == 0)
-						return i;
+					if (A.matrix[i][j] != 0)
+						return -1;
+				return i;
+			}
 		return -1;
 	}
 	
-	public static int[] find_pivot_colms(Matrix A) {
+	public static boolean[] find_pivot_colms(Matrix A) {
 		int p = 0;
-		int[] pivot_columns = new int[A.getNumColm()];
+		boolean[] pivot_columns = new boolean[A.n];
 		int count = 0;
-		for (int j = 0; j < A.getNumRow(); j++) {
+		for (int j = 0; j < A.n; j++) {
 			int i = find_pivot(A, j);
 			if (i == -1) {
 				continue;
 			}
 			else {
-				for (int r = i + 1; r < A.getNumRow(); r++) {
-					for (int c = A.getNumColm() - 1; c > j - 1; c--) {
-						int a = (A.matrix[i][j] * A.matrix[r][c]) - (A.matrix[r][j]
+				for (int r = i + 1; r < A.m; r++) {
+					for (int c = A.n - 1; c > j - 1; c--) {
+						A.matrix[r][c] = (A.matrix[i][j] * A.matrix[r][c]) - (A.matrix[r][j]
 							* A.matrix[r][c]);
-						A.setItem(r, c, a);
 						if (p != 0)
 							A.matrix[r][c] %= p;
 					}
 				}
 			}
-			pivot_columns[count] = j;
+			pivot_columns[j] = true;
 			count++;
 		}
 		return pivot_columns;
 	}
 	
 	public static void main(String... args) {
+		
 		MatrixPerm mp = new MatrixPerm(rows, cols, p);
 		
 		Matrix C = mp.toStart();
+		int numM = 0;
 		
 		do {
 			C = mp.getCurrent();
-			System.out.println(find_pivot_colms(C));
+			numM++;
+			System.out.println(C);
+			
+			boolean[] colms = find_pivot_colms(C);
+			
+			for (boolean b: colms)
+				System.out.print(b + "\t");
+			System.out.println("\n--------------");
+			
 		} while (mp.permute());
 	}
 	
