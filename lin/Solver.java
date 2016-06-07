@@ -1,4 +1,4 @@
-
+package lin;
 
 public class Solver {
     Matrix A;
