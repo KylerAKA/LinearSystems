@@ -22,8 +22,8 @@ public abstract class Permutator<O> {
 	 * 
 	 * @return
 	 */
-	O getCurrent() {
-		return crn;
-	}
+	abstract O getCurrent();
+		
+	
 	
 }

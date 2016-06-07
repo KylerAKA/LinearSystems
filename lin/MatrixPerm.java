@@ -29,4 +29,9 @@ public class MatrixPerm extends Permutator<Matrix> {
 					crn.matrix[r][c] = 0;
 		return false;
 	}
+	
+	@Override
+	Matrix getCurrent(){
+		return new Matrix(crn.matrix);
+	}
 }

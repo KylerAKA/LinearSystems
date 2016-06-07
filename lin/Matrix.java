@@ -8,12 +8,13 @@ public class Matrix {
 	public Matrix(int rows, int cols) {
 		m = rows;
 		n = cols;
-		matrix = new int[n][m];
+		matrix = new int[m][n];
 	}
 	
 	public Matrix(int[][] initial) {
 		m = initial.length;
 		n = initial[0].length;
+		matrix = new int[m][n];
 		for (int r = 0; r < m; r++)
 			for (int c = 0; c < n; c++)
 				matrix[r][c] = initial[r][c];
