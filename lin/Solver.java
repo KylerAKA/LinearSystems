@@ -1,18 +1,17 @@
 package lin;
 
 public class Solver {
-	public static int rows = 2, cols = 3, p = 2;
+	public static int rows = 2, cols = 10, p = 2;
 	
 	public static int find_pivot(Matrix A, int colm_num) {
-		for (int i = 0; i < A.m; i++)
+		Rows: for (int i = 0; i < A.m; i++) {
 			if (A.matrix[i][colm_num] == 0)
 				continue;
-			else {
-				for (int j = 0; j < colm_num; j++)
-					if (A.matrix[i][j] != 0)
-						return -1;
-				return i;
-			}
+			for (int j = 0; j < colm_num; j++)
+				if (A.matrix[i][j] != 0)
+					continue Rows;
+			return i;
+		}
 		return -1;
 	}
 	
@@ -29,7 +28,7 @@ public class Solver {
 				for (int r = i + 1; r < A.m; r++) {
 					for (int c = A.n - 1; c > j - 1; c--) {
 						A.matrix[r][c] = (A.matrix[i][j] * A.matrix[r][c]) - (A.matrix[r][j]
-							* A.matrix[r][c]);
+							* A.matrix[i][c]);
 						if (p != 0)
 							A.matrix[r][c] %= p;
 					}
@@ -47,19 +46,23 @@ public class Solver {
 		
 		Matrix C = mp.toStart();
 		int numM = 0;
+		int numC = 0;
 		
 		do {
 			C = mp.getCurrent();
 			numM++;
-			System.out.println(C);
+			// System.out.println(C);
 			
 			boolean[] colms = find_pivot_colms(C);
+			if (!colms[cols - 1])
+				numC++;
 			
-			for (boolean b: colms)
-				System.out.print(b + "\t");
-			System.out.println("\n--------------");
+			// for (boolean b: colms)
+			// System.out.print(((b)? "pivot": "not") + "\t");
+			// System.out.println("\n--------------");
 			
 		} while (mp.permute());
+		
+		System.out.println(numC + "/" + numM + ": " + (float) numC / numM);
 	}
-	
 }
