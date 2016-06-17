@@ -58,7 +58,7 @@ public class Matrix {
 		for (int[] r: matrix) {
 			s += "[";
 			for (int a: r)
-				s += a + "\t";
+				s += a + "  ";
 			s += "]\n";
 		}
 		
