@@ -15,17 +15,11 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 
 public class Solver {
-	public static int rows_i = 3, cols_i = 3, prime = 2;
+	public static boolean reduce = true;
 	
-	public static int num_pivots = 2;
-	
-	public static int[] numbers = {2, 3, 5, 7, 11, 13, 17, 19, 23, 29};
-	
-	public static int rows_f = 10, cols_f = 10;
-	
-	public static int find_pivot(Matrix A, int colm_num) {
+	public static int find_pivot(Matrix A, int colm_num, int p) {
 		Rows: for (int i = 0; i < A.m; i++) {
-			if (A.matrix[i][colm_num] == 0)
+			if (A.matrix[i][colm_num] == 0 || gcdreduce(A, i, colm_num, p))
 				continue;
 			for (int j = 0; j < colm_num; j++)
 				if (A.matrix[i][j] != 0)
@@ -38,17 +32,15 @@ public class Solver {
 	public static boolean[] find_pivot_colms(Matrix A, int p) {
 		boolean[] pivot_columns = new boolean[A.n];
 		for (int j = 0; j < A.n; j++) {
-			int i = find_pivot(A, j);
+			int i = find_pivot(A, j, p);
 			if (i == -1) {
 				continue;
 			}
 			else {
 				for (int r = i + 1; r < A.m; r++) {
 					for (int c = A.n - 1; c > j - 1; c--) {
-						A.matrix[r][c] = (A.matrix[i][j] * A.matrix[r][c]) - (A.matrix[r][j]
-							* A.matrix[i][c]);
-						if (p != 0)
-							A.matrix[r][c] %= p;
+						A.matrix[r][c] = ((A.matrix[i][j] * A.matrix[r][c]) - (A.matrix[r][j]
+							* A.matrix[i][c])) % p;
 					}
 				}
 			}
@@ -58,47 +50,134 @@ public class Solver {
 	}
 	
 	public static void main(String... args) {
-		watchCount();
+		makeCharts();
 	}
 	
-	static void watchCount() {
+	static void watchCounts() {
+		// =Output ============================================
+		File mainDir = null;
+		File nDir = null;
+		File rDir = null;
+		File ZChart = null;
+		PrintWriter Zout = null;
+		try { // find charts folder
+			mainDir = new File("charts").getCanonicalFile();
+		}
+		catch (IOException e) {
+			System.err.println(e);
+			System.exit(0);
+		}
+		// =====================================================
+		
+		// =Swing ==============================================
 		JFrame f = new JFrame();
-		f.setPreferredSize(new Dimension(1000, 100));
+		f.setPreferredSize(new Dimension(500, 300));
 		f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		JPanel p = new JPanel();
+		p.setLayout(new BoxLayout(p, BoxLayout.PAGE_AXIS));
 		JLabel l = new JLabel();
-		f.add(l);
+		p.add(l);
+		JPanel k = new JPanel();
+		k.setLayout(new BoxLayout(k, BoxLayout.PAGE_AXIS));
+		p.add(k);
+		f.add(p);
 		f.pack();
 		f.setVisible(true);
+		// ====================================================
 		
-		MatrixPerm mp = new MatrixPerm(rows_i, cols_i, prime);
-		Matrix C = mp.toStart();
+		// =Constants =========================================
+		int rows_i = 2, rows_f = 10;
+		int cols_i = 2, cols_f = 10;
+		int n_i = 2, n_f = 10;
+		// ====================================================
 		
-		int numM = 0;
-		int numC = 0;
-		long Tot = (long) Math.pow(prime, (rows_i * cols_i));
-		int numP = 0;
-		
-		do {
-			C = mp.getCurrent();
-			numM++;
-			for (boolean b: find_pivot_colms(C, prime))
-				if (b)
-					numP++;
+		// =Number Crunching ==================================
+		for (int n = n_i; n <= n_f; n++) {
+			// folder for n;
+			nDir = new File(mainDir, "p = " + n);
+			if (!nDir.exists())
+				nDir.mkdir();
 			
-			if (numP == num_pivots) // counts pivots
-				numC++;
-			numP = 0;
-			
-			l.setText(numC + "/" + numM + "/" + Tot);
-			f.repaint();
-		} while (mp.permute());
-		
+			for (int rows = rows_i; rows <= rows_f; rows++) {
+				
+				// folder for r;
+				rDir = new File(nDir, "r = " + rows);
+				if (!rDir.exists())
+					rDir.mkdir();
+				
+				for (int cols = cols_i; cols <= cols_f; cols++) {
+					
+					long Tot = (long) Math.pow(n, (rows * cols));
+					if (Tot >= Math.pow(2, 30)) // skip long
+						continue;
+					
+					// file for rows x columns
+					try {
+						ZChart = new File(rDir, rows + "x" + cols);
+						if (ZChart.exists())
+							ZChart.delete();
+						ZChart.createNewFile();
+						Zout = new PrintWriter(new BufferedWriter(new FileWriter(ZChart, true)), true);
+					}
+					catch (IOException e) {
+						System.err.println(e);
+						System.exit(0);
+					}
+					
+					// prepare permutator
+					MatrixPerm mp = new MatrixPerm(rows, cols, n);
+					Matrix C = mp.toStart();
+					
+					// labels for each of K pivots
+					JLabel[] numKL = new JLabel[cols + 1];
+					for (int i = 0; i <= cols; i++) {
+						numKL[i] = new JLabel();
+						k.add(numKL[i]);
+					}
+					f.revalidate();
+					
+					// number of matrices with K pivots
+					int[] numK = new int[cols + 1];
+					int numP = 0; // number of pivots, per C
+					int numC = 0; // number of consistent matrices
+					int numM = 0; // number of matrices processed
+					
+					do { // run through permutations
+						C = mp.getCurrent();
+						numM++; // matrix processed
+						
+						boolean[] colsort = find_pivot_colms(C, n);
+						if (colsort[cols - 1])
+							numC++; // the matrix is consistent
+						for (boolean b: colsort)
+							if (b)
+								numP++;
+						numK[numP]++; // the matrix has k pivots
+						numP = 0;
+						
+						// update swing
+						l.setText(rows + "x" + cols + " in mod " + n + ": " + numC + "/" + numM + "/" + Tot);
+						for (int i = 0; i <= cols; i++)
+							numKL[i].setText(i + " pivots: " + numK[i]);
+						f.repaint();
+						
+					} while (mp.permute());
+					// =Output ======================================
+					Zout.printf("Total Matrices: %1$10d \n", Tot);
+					Zout.printf("Consistent: %1$10d \n", numC);
+					Zout.println("Pivot Dist");
+					for (int i = 0; i <= cols; i++)
+						Zout.printf(i + ": %1$10d \n", numK[i]);
+					
+					k.removeAll();
+					
+				}
+			}
+		}
 	}
 	
 	static void showPerms() {
-		MatrixPerm mp = new MatrixPerm(rows_i, cols_i, prime);
-		Matrix C = mp.toStart();
-		// Swing
+		// =Swing =============================================
 		JFrame f = new JFrame();
 		f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		
@@ -117,25 +196,38 @@ public class Solver {
 		
 		f.pack();
 		f.setVisible(true);
+		
+		// =Number Crunching ==================================
+		int rows = 3, cols = 3, prime = 6;
+		
+		MatrixPerm mp = new MatrixPerm(rows, cols, prime);
+		Matrix C = mp.toStart();
+		
 		int i = 0;
 		
 		do {
 			C = mp.getCurrent();
-			if (!find_pivot_colms(mp.getCurrent(), prime)[cols_i - 1]) {
+			
+			// displays if consistent
+			if (!find_pivot_colms(mp.getCurrent(), prime)[cols - 1]) {
 				t = new JTextArea();
 				t.setFont(new Font("Courier", Font.PLAIN, 9));
 				t.setText(C.toString());
 				currentRow.add(t);
 				i++;
 			}
-			if (i >= Math.pow(2, cols_i * rows_i) / 36) {
+			
+			// line wrapping
+			if (i >= Math.pow(2, cols * rows) / 20) {
+				i = 0;
+				
 				p.add(currentRow);
 				currentRow = new JPanel();
-				i = 0;
 				currentRow.setLayout(new BoxLayout(currentRow, BoxLayout.LINE_AXIS));
 				f.revalidate();
 				f.repaint();
 			}
+			
 			p.add(currentRow);
 			f.revalidate();
 			f.repaint();
@@ -143,11 +235,12 @@ public class Solver {
 		} while (mp.permute());
 	}
 	
-	static void makePrimeCharts() {
-		File iD = null; // Create the output file
+	static void makeCharts() {
+		// =Setup Output =======================================
+		File iD = null;
 		File pChart = null;
 		PrintWriter out = null;
-		try {
+		try { // find charts folder
 			iD = new File("charts").getCanonicalFile();
 		}
 		catch (IOException e) {
@@ -155,10 +248,15 @@ public class Solver {
 			System.exit(0);
 		}
 		
+		// make charts over the set extents
+		int[] numbers = {2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15};
+		int rows_i = 2, cols_i = 2;
+		int rows_f = 10, cols_f = 10;
+		
 		for (int p: numbers) {
 			
-			try {
-				pChart = new File(iD, "Inconistent_count_" + p);
+			try {// create or recreate file to output chart
+				pChart = new File(iD, "C(Z^mxn_" + p + ")");
 				if (pChart.exists())
 					pChart.delete();
 				pChart.createNewFile();
@@ -169,14 +267,23 @@ public class Solver {
 				System.exit(0);
 			}
 			
-			if (out == null) {
-				System.err.println("Stream to File could not be opened!");
-				return;
-			}
+			// =Crunch Numbers ===================================
+			
+			out.print("          |");
+			for (int i = cols_i; i <= cols_f; i++)
+				out.printf("%1$10d", i);
+			out.println();
+			out.print("__________|");
+			for (int i = cols_i; i <= cols_f; i++)
+				out.print("__________");
+			out.println();
 			
 			for (int r = rows_i; r <= rows_f; r++) {
+				out.printf("%1$10d |", r);
+				
 				for (int c = cols_i; c <= cols_f; c++) {
 					
+					// make permutator
 					MatrixPerm mp = new MatrixPerm(r, c, p);
 					Matrix C = mp.toStart();
 					
@@ -190,8 +297,8 @@ public class Solver {
 							numC++;
 					} while (mp.permute());
 					
-					out.printf("%1$10d", Tot - numC);
-					System.out.printf("%1$10d", Tot - numC);
+					out.printf("%1$10d", numC);
+					System.out.printf("%1$10d", numC);
 				}
 				out.println();
 				System.out.println();
@@ -199,5 +306,38 @@ public class Solver {
 			System.out.println("Done!");
 			out.close();
 		}
+	}
+	
+	/**
+	 * Returns true if the element of matrix A at [r,c] is a
+	 * zero divisor in p. That is, if for some x,y in Z mod p,
+	 * x,y != 0 && x*y = 0, then x and y are zero divisors.
+	 * 
+	 * @param A a matrix
+	 * @param r the element row
+	 * @param c the element column
+	 * @param p the modulation
+	 * @return Whether the row of the matrix can/has be/been
+	 *         reduced by multiplying the row of the element
+	 *         [r,c] by that element's zero divisor conjugate.
+	 */
+	static boolean gcdreduce(Matrix A, int r, int c, int p) {
+		int b = A.matrix[r][c], e = b;
+		int a = p;
+		
+		while (b > 1) {
+			e = b;
+			b = a % b;
+			a = e;
+		}
+		
+		if (b != 0)
+			return false;
+		
+		if (reduce)
+			for (int i = 0; i < A.matrix[r].length; i++)
+				A.matrix[r][i] = A.matrix[r][i] * a % p;
+		
+		return true;
 	}
 }
