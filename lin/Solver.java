@@ -13,6 +13,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
+import javax.swing.ScrollPaneConstants;
 
 public class Solver {
 	public static boolean reduce = true;
@@ -36,21 +37,17 @@ public class Solver {
 			if (i == -1) {
 				continue;
 			}
-			else {
-				for (int r = i + 1; r < A.m; r++) {
-					for (int c = A.n - 1; c > j - 1; c--) {
-						A.matrix[r][c] = ((A.matrix[i][j] * A.matrix[r][c]) - (A.matrix[r][j]
-							* A.matrix[i][c])) % p;
-					}
-				}
-			}
+			for (int r = i + 1; r < A.m; r++)
+				for (int c = A.n - 1; c > j - 1; c--)
+					A.matrix[r][c] = ((A.matrix[i][j] * A.matrix[r][c]) - (A.matrix[r][j]
+						* A.matrix[i][c])) % p;
 			pivot_columns[j] = true;
 		}
 		return pivot_columns;
 	}
 	
 	public static void main(String... args) {
-		makeCharts();
+		watchCounts();
 	}
 	
 	static void watchCounts() {
@@ -128,16 +125,18 @@ public class Solver {
 					MatrixPerm mp = new MatrixPerm(rows, cols, n);
 					Matrix C = mp.toStart();
 					
+					int K_max = (cols < rows)? cols: rows;
+					
 					// labels for each of K pivots
-					JLabel[] numKL = new JLabel[cols + 1];
-					for (int i = 0; i <= cols; i++) {
+					JLabel[] numKL = new JLabel[K_max + 1];
+					for (int i = 0; i <= K_max; i++) {
 						numKL[i] = new JLabel();
 						k.add(numKL[i]);
 					}
 					f.revalidate();
 					
 					// number of matrices with K pivots
-					int[] numK = new int[cols + 1];
+					int[] numK = new int[K_max + 1];
 					int numP = 0; // number of pivots, per C
 					int numC = 0; // number of consistent matrices
 					int numM = 0; // number of matrices processed
@@ -147,7 +146,7 @@ public class Solver {
 						numM++; // matrix processed
 						
 						boolean[] colsort = find_pivot_colms(C, n);
-						if (colsort[cols - 1])
+						if (!colsort[cols - 1])
 							numC++; // the matrix is consistent
 						for (boolean b: colsort)
 							if (b)
@@ -157,7 +156,7 @@ public class Solver {
 						
 						// update swing
 						l.setText(rows + "x" + cols + " in mod " + n + ": " + numC + "/" + numM + "/" + Tot);
-						for (int i = 0; i <= cols; i++)
+						for (int i = 0; i <= K_max; i++)
 							numKL[i].setText(i + " pivots: " + numK[i]);
 						f.repaint();
 						
@@ -166,7 +165,7 @@ public class Solver {
 					Zout.printf("Total Matrices: %1$10d \n", Tot);
 					Zout.printf("Consistent: %1$10d \n", numC);
 					Zout.println("Pivot Dist");
-					for (int i = 0; i <= cols; i++)
+					for (int i = 0; i <= K_max; i++)
 						Zout.printf(i + ": %1$10d \n", numK[i]);
 					
 					k.removeAll();
@@ -184,8 +183,8 @@ public class Solver {
 		JPanel p = new JPanel();
 		p.setLayout(new BoxLayout(p, BoxLayout.PAGE_AXIS));
 		JScrollPane pscroll =
-			new JScrollPane(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
-				JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+			new JScrollPane(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
+				ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 		pscroll.setViewportView(p);
 		f.setContentPane(pscroll);
 		
@@ -198,27 +197,40 @@ public class Solver {
 		f.setVisible(true);
 		
 		// =Number Crunching ==================================
-		int rows = 3, cols = 3, prime = 6;
+		int rows = 2, cols = 2, prime = 3;
 		
 		MatrixPerm mp = new MatrixPerm(rows, cols, prime);
 		Matrix C = mp.toStart();
+		Matrix A = mp.toStart();
 		
 		int i = 0;
+		int pi = 0;
 		
 		do {
 			C = mp.getCurrent();
+			A = mp.getCurrent();
+			pi = 0;
 			
 			// displays if consistent
-			if (!find_pivot_colms(mp.getCurrent(), prime)[cols - 1]) {
+			boolean[] bools = find_pivot_colms(A, prime);
+			for (boolean b: bools)
+				if (b)
+					pi++;
+			
+			if (true) {
 				t = new JTextArea();
 				t.setFont(new Font("Courier", Font.PLAIN, 9));
 				t.setText(C.toString());
+				t.append("___\n");
+				t.append(A.toString());
+				for (int j = 0; j < bools.length; j++)
+					t.append(((bools[j])? "T": "F") + " ");
 				currentRow.add(t);
 				i++;
 			}
 			
 			// line wrapping
-			if (i >= Math.pow(2, cols * rows) / 20) {
+			if (i >= Math.sqrt(Math.pow(prime, cols * rows))) {
 				i = 0;
 				
 				p.add(currentRow);
@@ -325,13 +337,13 @@ public class Solver {
 		int b = A.matrix[r][c], e = b;
 		int a = p;
 		
-		while (b > 1) {
+		while (b > 0) {
 			e = b;
 			b = a % b;
 			a = e;
 		}
 		
-		if (b != 0)
+		if (a == 1 || a == p)
 			return false;
 		
 		if (reduce)
@@ -340,4 +352,5 @@ public class Solver {
 		
 		return true;
 	}
+	
 }
